@@ -1,0 +1,142 @@
+#include "ghosts.h"
+#include "tilemap.h"
+
+extern uint8_t read_tile(uint16_t px, uint16_t py);
+
+/* ─── constants ─────────────────────────────── */
+#define HALF_GHOST  (GHOST_SIZE / 2)    /* 7  */
+#define HALF_TILE   (TILE_WIDTH  / 2)   /* 4  */
+
+/* ─── helpers ───────────────────────────────── */
+
+/* true if the *centre* of the sprite is on the exact centre‑line of a tile */
+static inline int on_tile_center(uint16_t cx, uint16_t cy)
+{
+    return ( ((cx - MAZE_X_OFFSET - HALF_TILE) % TILE_WIDTH  == 0) &&
+             ((cy - MAZE_Y_OFFSET - HALF_TILE) % TILE_HEIGHT == 0) );
+}
+
+static inline int walkable(uint8_t t) {        /* 0x00 blank, 0x01 pellet, 0x02 power */
+    return t <= 0x02;
+}
+
+/* return the (column,row) of the tile that contains pixel centre (cx,cy)      */
+static inline void tile_coord(uint16_t cx, uint16_t cy, int8_t *tx, int8_t *ty)
+{
+    *tx = (cx - MAZE_X_OFFSET - HALF_TILE) / TILE_WIDTH;
+    *ty = (cy - MAZE_Y_OFFSET - HALF_TILE) / TILE_HEIGHT;
+}
+
+/* snap sprite so that its centre lies exactly on the centre of its tile       */
+static inline void snap_to_grid(Ghost *g)
+{
+    int8_t tx, ty;
+    tile_coord(g->x + HALF_GHOST, g->y + HALF_GHOST, &tx, &ty);
+
+    g->x = MAZE_X_OFFSET + tx * TILE_WIDTH  + HALF_TILE - HALF_GHOST;
+    g->y = MAZE_Y_OFFSET + ty * TILE_HEIGHT + HALF_TILE - HALF_GHOST;
+}
+
+/* ─── API ───────────────────────────────────── */
+
+void init_ghost(Ghost *g, uint8_t tile_x, uint8_t tile_y)
+{
+    g->x = MAZE_X_OFFSET + tile_x * TILE_WIDTH  + HALF_TILE - HALF_GHOST;
+    g->y = MAZE_Y_OFFSET + tile_y * TILE_HEIGHT + HALF_TILE - HALF_GHOST;
+    g->direction = DIR_NONE;
+}
+
+/* decide whether the *next* tile in <dir> is walkable, using the sprite centre */
+int valid_ghost_move(int dir, uint16_t x, uint16_t y)
+{
+    // Calculate the ghost's center
+    uint16_t cx = x + HALF_GHOST;  // x + 7
+    uint16_t cy = y + HALF_GHOST;  // y + 7
+
+    // Get the current tile coordinates
+    int8_t tx, ty;
+    tile_coord(cx, cy, &tx, &ty);
+
+    // For LEFT and UP, check the tile at the next pixel position
+    if (dir == DIR_LEFT || dir == DIR_UP) {
+        int16_t test_cx = cx;
+        int16_t test_cy = cy;
+
+        switch (dir) {
+            case DIR_LEFT:  test_cx -= 1; break;
+            case DIR_UP:    test_cy -= 1; break;
+            default: return 0;
+        }
+
+        // Convert the test position to tile coordinates
+        tile_coord(test_cx, test_cy, &tx, &ty);
+    }
+    // For RIGHT and DOWN, check the next tile
+    else if (dir == DIR_RIGHT || dir == DIR_DOWN) {
+        switch (dir) {
+            case DIR_RIGHT: ++tx; break;
+            case DIR_DOWN:  ++ty; break;
+            default: return 0;
+        }
+    }
+    else {
+        return 0;
+    }
+
+    // Convert tile coordinates back to the center of the tile to check walkability
+    uint16_t test_cx = MAZE_X_OFFSET + tx * TILE_WIDTH  + HALF_TILE;
+    uint16_t test_cy = MAZE_Y_OFFSET + ty * TILE_HEIGHT + HALF_TILE;
+
+    return walkable(read_tile(test_cx, test_cy));
+}
+
+int choose_direction(Ghost *g)
+{
+    int dx = g->target_x - g->x;
+    int dy = g->target_y - g->y;
+
+    /* x‑priority, then y; fallbacks keep the ghost moving             */
+    if (abs(dx) > abs(dy)) {
+        if (dx > 0 && valid_ghost_move(DIR_RIGHT, g->x, g->y)) return DIR_RIGHT;
+        if (dx < 0 && valid_ghost_move(DIR_LEFT , g->x, g->y)) return DIR_LEFT;
+    }
+    if (dy > 0 && valid_ghost_move(DIR_DOWN , g->x, g->y)) return DIR_DOWN;
+    if (dy < 0 && valid_ghost_move(DIR_UP   , g->x, g->y)) return DIR_UP;
+
+    if (valid_ghost_move(DIR_LEFT , g->x, g->y)) return DIR_LEFT;
+    if (valid_ghost_move(DIR_RIGHT, g->x, g->y)) return DIR_RIGHT;
+    if (valid_ghost_move(DIR_UP   , g->x, g->y)) return DIR_UP;
+    if (valid_ghost_move(DIR_DOWN , g->x, g->y)) return DIR_DOWN;
+
+    return DIR_NONE;
+}
+
+static inline void step(Ghost *g, int speed)
+{
+    switch (g->direction) {
+        case DIR_LEFT:  g->x -= speed; break;
+        case DIR_RIGHT: g->x += speed; break;
+        case DIR_UP:    g->y -= speed; break;
+        case DIR_DOWN:  g->y += speed; break;
+        default: break;
+    }
+}
+
+void update_ghost(Ghost *g, uint16_t pac_x, uint16_t pac_y)
+{
+    uint16_t cx = g->x + HALF_GHOST;
+    uint16_t cy = g->y + HALF_GHOST;
+
+    /* when we *arrive* at an intersection, snap and pick a new dir */
+    if (on_tile_center(cx, cy)) {
+        snap_to_grid(g);            /* eliminate any accumulated drift */
+
+        g->target_x  = pac_x;
+        g->target_y  = pac_y;
+        g->direction = choose_direction(g);
+    }
+    /* if we’re still allowed to head that way, move one pixel        */
+    if (valid_ghost_move(g->direction, g->x, g->y)){
+        step(g, 1);
+    }
+}

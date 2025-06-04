@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ghosts.h": "c",
+        "tilemap.h": "c"
+    }
+}

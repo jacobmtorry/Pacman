@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="hdmi_text_controller_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="hdmi_text_controller_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,643.001 ns"></ZoomEndTime>
+      <Cursor1Time time="433.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="293"></NameColumnWidth>
+      <ValueColumnWidth column_width="141"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="62" />
+   <wvobject fp_name="/hdmi_text_controller_tb/aclk" type="logic">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/arstn" type="logic">
+      <obj_property name="ElementShortName">arstn</obj_property>
+      <obj_property name="ObjectShortName">arstn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_addr" type="array">
+      <obj_property name="ElementShortName">write_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">write_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_prot" type="array">
+      <obj_property name="ElementShortName">write_prot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">write_prot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_addr_valid" type="logic">
+      <obj_property name="ElementShortName">write_addr_valid</obj_property>
+      <obj_property name="ObjectShortName">write_addr_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_addr_ready" type="logic">
+      <obj_property name="ElementShortName">write_addr_ready</obj_property>
+      <obj_property name="ObjectShortName">write_addr_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_data" type="array">
+      <obj_property name="ElementShortName">write_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">write_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_strb" type="array">
+      <obj_property name="ElementShortName">write_strb[3:0]</obj_property>
+      <obj_property name="ObjectShortName">write_strb[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_data_valid" type="logic">
+      <obj_property name="ElementShortName">write_data_valid</obj_property>
+      <obj_property name="ObjectShortName">write_data_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_data_ready" type="logic">
+      <obj_property name="ElementShortName">write_data_ready</obj_property>
+      <obj_property name="ObjectShortName">write_data_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_resp_ready" type="logic">
+      <obj_property name="ElementShortName">write_resp_ready</obj_property>
+      <obj_property name="ObjectShortName">write_resp_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_resp" type="array">
+      <obj_property name="ElementShortName">write_resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">write_resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/write_resp_valid" type="logic">
+      <obj_property name="ElementShortName">write_resp_valid</obj_property>
+      <obj_property name="ObjectShortName">write_resp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_addr" type="array">
+      <obj_property name="ElementShortName">read_addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">read_addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_prot" type="array">
+      <obj_property name="ElementShortName">read_prot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">read_prot[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_addr_valid" type="logic">
+      <obj_property name="ElementShortName">read_addr_valid</obj_property>
+      <obj_property name="ObjectShortName">read_addr_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_addr_ready" type="logic">
+      <obj_property name="ElementShortName">read_addr_ready</obj_property>
+      <obj_property name="ObjectShortName">read_addr_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_data_ready" type="logic">
+      <obj_property name="ElementShortName">read_data_ready</obj_property>
+      <obj_property name="ObjectShortName">read_data_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_data" type="array">
+      <obj_property name="ElementShortName">read_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">read_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_resp" type="array">
+      <obj_property name="ElementShortName">read_resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">read_resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/read_data_valid" type="logic">
+      <obj_property name="ElementShortName">read_data_valid</obj_property>
+      <obj_property name="ObjectShortName">read_data_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/pixel_rgb" type="array">
+      <obj_property name="ElementShortName">pixel_rgb[0:2][3:0]</obj_property>
+      <obj_property name="ObjectShortName">pixel_rgb[0:2][3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/pixel_clk" type="logic">
+      <obj_property name="ElementShortName">pixel_clk</obj_property>
+      <obj_property name="ObjectShortName">pixel_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/pixel_hs" type="logic">
+      <obj_property name="ElementShortName">pixel_hs</obj_property>
+      <obj_property name="ObjectShortName">pixel_hs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/pixel_vs" type="logic">
+      <obj_property name="ElementShortName">pixel_vs</obj_property>
+      <obj_property name="ObjectShortName">pixel_vs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/pixel_vde" type="logic">
+      <obj_property name="ElementShortName">pixel_vde</obj_property>
+      <obj_property name="ObjectShortName">pixel_vde</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/drawX" type="array">
+      <obj_property name="ElementShortName">drawX[9:0]</obj_property>
+      <obj_property name="ObjectShortName">drawX[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/drawY" type="array">
+      <obj_property name="ElementShortName">drawY[9:0]</obj_property>
+      <obj_property name="ObjectShortName">drawY[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/tb_read" type="array">
+      <obj_property name="ElementShortName">tb_read[31:0]</obj_property>
+      <obj_property name="ObjectShortName">tb_read[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/i" type="array">
+      <obj_property name="ElementShortName">i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/j" type="array">
+      <obj_property name="ElementShortName">j[31:0]</obj_property>
+      <obj_property name="ObjectShortName">j[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/black_white" type="array">
+      <obj_property name="ElementShortName">black_white[31:0]</obj_property>
+      <obj_property name="ObjectShortName">black_white[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/blue_green" type="array">
+      <obj_property name="ElementShortName">blue_green[31:0]</obj_property>
+      <obj_property name="ObjectShortName">blue_green[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/check_val" type="array">
+      <obj_property name="ElementShortName">check_val[31:0]</obj_property>
+      <obj_property name="ObjectShortName">check_val[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/BMP_WIDTH" type="array">
+      <obj_property name="ElementShortName">BMP_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BMP_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/BMP_HEIGHT" type="array">
+      <obj_property name="ElementShortName">BMP_HEIGHT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BMP_HEIGHT[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/cur_glyph_X" type="array">
+      <obj_property name="ElementShortName">cur_glyph_X[6:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_glyph_X[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/cur_glyph_Y" type="array">
+      <obj_property name="ElementShortName">cur_glyph_Y[5:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_glyph_Y[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/cur_pixel_X" type="array">
+      <obj_property name="ElementShortName">cur_pixel_X[2:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_pixel_X[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/cur_pixel_Y" type="array">
+      <obj_property name="ElementShortName">cur_pixel_Y[2:0]</obj_property>
+      <obj_property name="ObjectShortName">cur_pixel_Y[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/glyph_idx" type="logic">
+      <obj_property name="ElementShortName">glyph_idx</obj_property>
+      <obj_property name="ObjectShortName">glyph_idx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/char_code" type="array">
+      <obj_property name="ElementShortName">char_code[7:0]</obj_property>
+      <obj_property name="ObjectShortName">char_code[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/color_0" type="array">
+      <obj_property name="ElementShortName">color_0[3:0]</obj_property>
+      <obj_property name="ObjectShortName">color_0[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/color_1" type="array">
+      <obj_property name="ElementShortName">color_1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">color_1[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/color_2" type="array">
+      <obj_property name="ElementShortName">color_2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">color_2[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/color_3" type="array">
+      <obj_property name="ElementShortName">color_3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">color_3[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/c0_reg" type="array">
+      <obj_property name="ElementShortName">c0_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">c0_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/c1_reg" type="array">
+      <obj_property name="ElementShortName">c1_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">c1_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/c2_reg" type="array">
+      <obj_property name="ElementShortName">c2_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">c2_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/c3_reg" type="array">
+      <obj_property name="ElementShortName">c3_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">c3_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/rom_addr" type="array">
+      <obj_property name="ElementShortName">rom_addr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">rom_addr[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/glyph_number" type="array">
+      <obj_property name="ElementShortName">glyph_number[11:0]</obj_property>
+      <obj_property name="ObjectShortName">glyph_number[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/BRAM_idx" type="array">
+      <obj_property name="ElementShortName">BRAM_idx[11:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM_idx[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/rom_data" type="array">
+      <obj_property name="ElementShortName">rom_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rom_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/pixel_data" type="logic">
+      <obj_property name="ElementShortName">pixel_data</obj_property>
+      <obj_property name="ObjectShortName">pixel_data</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/BRAM" type="array">
+      <obj_property name="ElementShortName">BRAM[31:0]</obj_property>
+      <obj_property name="ObjectShortName">BRAM[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/addr" type="array">
+      <obj_property name="ElementShortName">addr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/data" type="array">
+      <obj_property name="ElementShortName">data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/addr_reg" type="array">
+      <obj_property name="ElementShortName">addr_reg[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_reg[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/ADDR_WIDTH" type="array">
+      <obj_property name="ElementShortName">ADDR_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ADDR_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/DATA_WIDTH" type="array">
+      <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
+      <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/hdmi_text_controller_tb/hdmi_text_controller_v1_0_inst/hdmi_text_controller_v1_0_AXI_inst/fonts/ROM" type="array">
+      <obj_property name="ElementShortName">ROM[2047:0]</obj_property>
+      <obj_property name="ObjectShortName">ROM[2047:0]</obj_property>
+   </wvobject>
+</wave_config>

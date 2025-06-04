@@ -1,0 +1,743 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: ECE-Illinois
+// Engineer: Zuofu Cheng
+// 
+// Create Date: 06/08/2023 12:21:05 PM
+// Design Name: 
+// Module Name: hdmi_text_controller_v1_0_AXI
+// Project Name: ECE 385 - hdmi_text_controller
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// This is a modified version of the Vivado template for an AXI4-Lite peripheral,
+// rewritten into SystemVerilog for use with ECE 385.
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.02 - File modified to be more consistent with generated template
+// Revision 11/18 - Made comments less confusing
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+module hdmi_text_controller_v1_0_AXI #
+(
+
+    // Parameters of Axi Slave Bus Interface S_AXI
+    // Modify parameters as necessary for access of full VRAM range
+
+    // Width of S_AXI data bus
+    parameter integer C_S_AXI_DATA_WIDTH	= 32,
+    // Width of S_AXI address bus
+    parameter integer C_S_AXI_ADDR_WIDTH	= 14
+)
+(
+    // Users to add ports here
+    input logic[9:0] drawX,
+    input logic[9:0] drawY,
+    output logic[3:0] R,
+    output logic[3:0] G,
+    output logic[3:0] B,
+    // User ports ends
+
+    // Global Clock Signal
+    input logic  S_AXI_ACLK,
+    // Global Reset Signal. This Signal is Active LOW
+    input logic  S_AXI_ARESETN,
+    // Write address (issued by master, acceped by Slave)
+    input logic [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR,
+    // Write channel Protection type. This signal indicates the
+        // privilege and security level of the transaction, and whether
+        // the transaction is a data access or an instruction access.
+    input logic [2 : 0] S_AXI_AWPROT,
+    // Write address valid. This signal indicates that the master signaling
+        // valid write address and control information.
+    input logic  S_AXI_AWVALID,
+    // Write address ready. This signal indicates that the slave is ready
+        // to accept an address and associated control signals.
+    output logic  S_AXI_AWREADY,
+    // Write data (issued by master, acceped by Slave) 
+    input logic [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_WDATA,
+    // Write strobes. This signal indicates which byte lanes hold
+        // valid data. There is one write strobe bit for each eight
+        // bits of the write data bus.    
+    input logic [(C_S_AXI_DATA_WIDTH/8)-1 : 0] S_AXI_WSTRB,
+    // Write valid. This signal indicates that valid write
+        // data and strobes are available.
+    input logic  S_AXI_WVALID,
+    // Write ready. This signal indicates that the slave
+        // can accept the write data.
+    output logic  S_AXI_WREADY,
+    // Write response. This signal indicates the status
+        // of the write transaction.
+    output logic [1 : 0] S_AXI_BRESP,
+    // Write response valid. This signal indicates that the channel
+        // is signaling a valid write response.
+    output logic  S_AXI_BVALID,
+    // Response ready. This signal indicates that the master
+        // can accept a write response.
+    input logic  S_AXI_BREADY,
+    // Read address (issued by master, acceped by Slave)
+    input logic [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_ARADDR,
+    // Protection type. This signal indicates the privilege
+        // and security level of the transaction, and whether the
+        // transaction is a data access or an instruction access.
+    input logic [2 : 0] S_AXI_ARPROT,
+    // Read address valid. This signal indicates that the channel
+        // is signaling valid read address and control information.
+    input logic  S_AXI_ARVALID,
+    // Read address ready. This signal indicates that the slave is
+        // ready to accept an address and associated control signals.
+    output logic  S_AXI_ARREADY,
+    // Read data (issued by slave)
+    output logic [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_RDATA,
+    // Read response. This signal indicates the status of the
+        // read transfer.
+    output logic [1 : 0] S_AXI_RRESP,
+    // Read valid. This signal indicates that the channel is
+        // signaling the required read data.
+    output logic  S_AXI_RVALID,
+    // Read ready. This signal indicates that the master can
+        // accept the read data and response information.
+    input logic  S_AXI_RREADY
+);
+
+// AXI4LITE signals
+logic  [C_S_AXI_ADDR_WIDTH-1 : 0] 	axi_awaddr;
+logic  axi_awready;
+logic  axi_wready;
+logic  [1 : 0] 	axi_bresp;
+logic  axi_bvalid;
+logic  [C_S_AXI_ADDR_WIDTH-1 : 0] 	axi_araddr;
+logic  axi_arready;
+logic  [C_S_AXI_DATA_WIDTH-1 : 0] 	axi_rdata;
+logic  [1 : 0] 	axi_rresp;
+logic  	axi_rvalid;
+
+// Example-specific design signals
+// local parameter for addressing 32 bit / 64 bit C_S_AXI_DATA_WIDTH
+// ADDR_LSB is used for addressing 32/64 bit registers/memories
+// ADDR_LSB = 2 for 32 bits (n downto 2)
+// ADDR_LSB = 3 for 64 bits (n downto 3)
+localparam integer ADDR_LSB = (C_S_AXI_DATA_WIDTH/32) + 1;
+localparam integer OPT_MEM_ADDR_BITS = 11;
+//----------------------------------------------
+//-- Signals for user logic register space example
+//------------------------------------------------
+//-- Number of Slave Registers 4
+//logic [C_S_AXI_DATA_WIDTH-1:0]	slv_reg0;
+//logic [C_S_AXI_DATA_WIDTH-1:0]	slv_reg1;
+//logic [C_S_AXI_DATA_WIDTH-1:0]	slv_reg2;
+//logic [C_S_AXI_DATA_WIDTH-1:0]	slv_reg3;
+//
+//Note: the provided Verilog template had the registered declared as above, but in order to give 
+//students a hint we have replaced the 4 individual registers with an unpacked array of packed logic. 
+//Note that you as the student will still need to extend this to the full register set needed for the lab.
+logic	 slv_reg_rden;
+logic	 slv_reg_wren;
+logic [C_S_AXI_DATA_WIDTH-1:0]	 reg_data_out;
+integer	 byte_index;
+logic	 aw_en;
+
+///////////// ADDED SIGNALS //////////////////////
+logic [31:0] data_pipe;
+
+logic [6:0] cur_glyph_X;    // Allows for 80 glyphs in a column
+logic [5:0] cur_glyph_Y;    // Allows for 30 glyphs in a row
+logic [2:0] cur_pixel_X;    // Allows for glyphs of width 8     
+logic [2:0] cur_pixel_Y;    // Allows for glyphs of height 8   
+
+logic [6:0] clamped_glyph_X;
+logic [5:0] clamped_glyph_Y;
+logic [9:0] tilemap_idx;            
+
+logic [7:0] tile_code;
+logic [10:0] rom_addr;
+logic [7:0] rom_data;
+logic pixel_data;
+
+logic [3:0] tilemap_wen;
+logic [C_S_AXI_ADDR_WIDTH-1 : 0] tilemap_addra;
+logic [C_S_AXI_DATA_WIDTH-1:0]	 movement_regs[8];
+
+logic [9:0] PACMAN_X;
+logic [9:0] PACMAN_Y;
+logic [9:0] BLINKY_X;
+logic [9:0] BLINKY_Y;
+logic [9:0] PINKY_X; 
+logic [9:0] PINKY_Y; 
+logic [9:0] INKY_X; 
+logic [9:0] INKY_Y; 
+logic [9:0] CLYDE_X;
+logic [9:0] CLYDE_Y;
+
+logic CLYDE_SCARED;
+logic INKY_SCARED;
+logic PINKY_SCARED;
+logic BLINKY_SCARED;
+
+logic [1:0] PACMAN_DIR;
+
+////////////////////////////////////////////////
+
+
+// I/O Connections assignments
+assign S_AXI_AWREADY	= axi_awready;
+assign S_AXI_WREADY	= axi_wready;
+assign S_AXI_BRESP	= axi_bresp;
+assign S_AXI_BVALID	= axi_bvalid;
+assign S_AXI_ARREADY = axi_arready;
+assign S_AXI_RDATA	= axi_rdata;
+assign S_AXI_RRESP	= axi_rresp;
+assign S_AXI_RVALID	= axi_rvalid;
+
+
+// Implement axi_awready generation
+// axi_awready is asserted for one S_AXI_ACLK clock cycle when both
+// S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_awready is
+// de-asserted when reset is low.
+
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+      axi_awready <= 1'b0;
+      aw_en <= 1'b1;
+    end 
+  else
+    begin    
+      if (~axi_awready && S_AXI_AWVALID && S_AXI_WVALID && aw_en)
+        begin
+          // slave is ready to accept write address when 
+          // there is a valid write address and write data
+          // on the write address and data bus. This design 
+          // expects no outstanding transactions. 
+          axi_awready <= 1'b1;
+          aw_en <= 1'b0;
+        end
+        else if (S_AXI_BREADY && axi_bvalid)
+            begin
+              aw_en <= 1'b1;
+              axi_awready <= 1'b0;
+            end
+      else           
+        begin
+          axi_awready <= 1'b0;
+        end
+    end 
+end       
+
+// Implement axi_awaddr latching
+// This process is used to latch the address when both 
+// S_AXI_AWVALID and S_AXI_WVALID are valid. 
+
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+      axi_awaddr <= 0;
+    end 
+  else
+    begin    
+      if (~axi_awready && S_AXI_AWVALID && S_AXI_WVALID && aw_en)
+        begin
+          // Write Address latching 
+          axi_awaddr <= S_AXI_AWADDR;
+        end
+    end 
+end       
+
+// Implement axi_wready generation
+// axi_wready is asserted for one S_AXI_ACLK clock cycle when both
+// S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_wready is 
+// de-asserted when reset is low. 
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+      axi_wready <= 1'b0;
+    end 
+  else
+    begin    
+      if (~axi_wready && S_AXI_WVALID && S_AXI_AWVALID && aw_en )
+        begin
+          // slave is ready to accept write data when 
+          // there is a valid write address and write data
+          // on the write address and data bus. This design 
+          // expects no outstanding transactions. 
+          axi_wready <= 1'b1;
+        end
+      else
+        begin
+          axi_wready <= 1'b0;
+        end
+    end 
+end       
+
+// Implement memory mapped register select and write logic generation
+// The write data is accepted and written to memory mapped registers when
+// axi_awready, S_AXI_WVALID, axi_wready and S_AXI_WVALID are asserted. Write strobes are used to
+// select byte enables of slave registers while writing.
+// These registers are cleared when reset (active low) is applied.
+// Slave register write enable is asserted when valid address and data are available
+// and the slave is ready to accept the write address and write data.
+
+assign slv_reg_wren = axi_wready && S_AXI_WVALID && axi_awready && S_AXI_AWVALID;
+
+always_comb begin
+    if(slv_reg_wren && ~axi_awaddr[ADDR_LSB + OPT_MEM_ADDR_BITS]) begin
+        tilemap_wen = S_AXI_WSTRB;
+        tilemap_addra = axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB];
+    end
+    else begin                                                    
+        tilemap_addra = axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB];
+        tilemap_wen = 4'b0000;
+  end
+end
+
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+        movement_regs[0] <= 32'd314;                           // Pac‑Man X
+        movement_regs[1] <= 32'd302;                           // Pac‑Man Y
+        movement_regs[2] <= {12'd0, 10'd313, 10'd205};         // Blinky  (X,Y)
+        movement_regs[3] <= {12'd0, 10'd313, 10'd229};         // Pinky
+        movement_regs[4] <= {12'd0, 10'd297, 10'd229};         // Inky
+        movement_regs[5] <= {12'd0, 10'd329, 10'd229};         // Clyde
+        movement_regs[6] <= 32'd0;
+        movement_regs[7] <= 32'd0;
+    end
+  else begin
+    if (slv_reg_wren && axi_awaddr[ADDR_LSB + OPT_MEM_ADDR_BITS]) begin
+        for (byte_index = 0; byte_index < 4; byte_index++) begin
+            if (S_AXI_WSTRB[byte_index]) begin
+                movement_regs[axi_awaddr[ADDR_LSB + OPT_MEM_ADDR_BITS:ADDR_LSB] - 2048][(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+            end
+        end
+    end 
+  end
+end    
+
+// Implement write response logic generation
+// The write response and response valid signals are asserted by the slave 
+// when axi_wready, S_AXI_WVALID, axi_wready and S_AXI_WVALID are asserted.  
+// This marks the acceptance of address and indicates the status of 
+// write transaction.
+
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+      axi_bvalid  <= 0;
+      axi_bresp   <= 2'b0;
+    end 
+  else
+    begin    
+      if (axi_awready && S_AXI_AWVALID && ~axi_bvalid && axi_wready && S_AXI_WVALID)
+        begin
+          // indicates a valid write response is available
+          axi_bvalid <= 1'b1;
+          axi_bresp  <= 2'b0; // 'OKAY' response 
+        end                   // work error responses in future
+      else
+        begin
+          if (S_AXI_BREADY && axi_bvalid) 
+            //check if bready is asserted while bvalid is high) 
+            //(there is a possibility that bready is always asserted high)   
+            begin
+              axi_bvalid <= 1'b0; 
+            end  
+        end
+    end
+end   
+
+// Implement axi_arready generation
+// axi_arready is asserted for one S_AXI_ACLK clock cycle when
+// S_AXI_ARVALID is asserted. axi_awready is 
+// de-asserted when reset (active low) is asserted. 
+// The read address is also latched when S_AXI_ARVALID is 
+// asserted. axi_araddr is reset to zero on reset assertion.
+
+always_ff @( posedge S_AXI_ACLK )
+begin
+  if ( S_AXI_ARESETN == 1'b0 )
+    begin
+      axi_arready <= 1'b0;
+      axi_araddr  <= 32'b0;
+    end 
+  else
+    begin    
+      if (~axi_arready && S_AXI_ARVALID)
+        begin
+          // indicates that the slave has acceped the valid read address
+          axi_arready <= 1'b1;
+          // Read address latching
+          axi_araddr  <= S_AXI_ARADDR;
+        end
+      else
+        begin
+          axi_arready <= 1'b0;
+        end
+    end 
+end       
+
+// Implement axi_arvalid generation
+// axi_rvalid is asserted for one S_AXI_ACLK clock cycle when both 
+// S_AXI_ARVALID and axi_arready are asserted. The slave registers 
+// data are available on the axi_rdata bus at this instance. The 
+// assertion of axi_rvalid marks the validity of read data on the 
+// bus and axi_rresp indicates the status of read transaction.axi_rvalid 
+// is deasserted on reset (active low). axi_rresp and axi_rdata are 
+// cleared to zero on reset (active low).    
+
+// Implement memory mapped register select and read logic generation
+// Slave register read enable is asserted when valid address is available
+// and the slave is ready to accept the read address.
+assign slv_reg_rden = axi_arready & S_AXI_ARVALID & ~axi_rvalid;
+logic read_ready;
+logic [1:0] count;
+
+// Output register or memory read data
+always_ff @( posedge S_AXI_ACLK )
+begin
+   if (S_AXI_ARESETN == 1'b0) begin
+        axi_rvalid <= 0;
+        axi_rresp <= 0;
+   end
+   else begin
+        if(count == 3 && ~axi_rvalid)
+        begin
+            axi_rvalid <= 1'b1;
+            axi_rresp <= 2'b0;
+        end
+        else if (axi_rvalid && S_AXI_RREADY) begin
+            axi_rvalid <= 1'b0;  
+        end
+   end
+end
+
+always_ff @( posedge S_AXI_ACLK) begin
+    if(~axi_arready && S_AXI_ARVALID)
+        count <= 1;
+    if(count == 1)
+        count <= 2;
+    if(count == 2) begin
+        read_ready <= 1'b1;
+        count <= 3;
+    end
+    if(count == 3) begin
+        read_ready <= 1'b0;
+        count <= 0;
+    end
+end
+
+always_comb begin
+    if (slv_reg_rden && axi_araddr[OPT_MEM_ADDR_BITS + ADDR_LSB])
+        data_pipe <= movement_regs[axi_araddr[OPT_MEM_ADDR_BITS + ADDR_LSB: ADDR_LSB] - 2048];
+    else
+        data_pipe <= data_pipe;
+end 
+
+always_ff @( posedge S_AXI_ACLK) begin
+    if (S_AXI_ARESETN == 1'b0) begin
+        axi_rdata <= 0;
+    end
+    else begin
+        if (read_ready && ~axi_araddr[13])
+            axi_rdata <= reg_data_out;
+        else if (slv_reg_rden && axi_araddr[13])
+            axi_rdata <= data_pipe;
+    end
+end
+
+
+// Add user logic here  
+logic in_bounds;
+logic in_blinky;
+logic in_pinky;
+logic in_inky;
+logic in_clyde;
+logic in_pacman;
+
+logic [9:0] localX, localY;
+
+logic [1:0] ghost_pixel;
+logic [7:0] ghost_sprite_addr;
+
+logic pacman_pixel;
+logic [7:0] pacman_sprite_addr;
+
+always_comb begin
+  PACMAN_X = movement_regs[0][9:0];
+  PACMAN_Y = movement_regs[1][9:0];
+
+  BLINKY_X = movement_regs[2][19:10];
+  BLINKY_Y = movement_regs[2][9:0];
+
+  PINKY_X = movement_regs[3][19:10];
+  PINKY_Y = movement_regs[3][9:0];
+
+  INKY_X = movement_regs[4][19:10];
+  INKY_Y = movement_regs[4][9:0];
+
+  CLYDE_X = movement_regs[5][19:10];
+  CLYDE_Y = movement_regs[5][9:0];
+
+  CLYDE_SCARED = movement_regs[6][0];
+  INKY_SCARED = movement_regs[6][1];
+  PINKY_SCARED = movement_regs[6][2];
+  BLINKY_SCARED = movement_regs[6][3];
+
+  PACMAN_DIR = movement_regs[7][1:0];
+end
+  
+always_comb
+begin
+
+    localX = (drawX >= 208) ? drawX - 208 : 10'd0;
+    localY = (drawY >= 96) ? drawY - 96 : 10'd0;
+    in_bounds = (drawX >= 208 && drawX < 208 + 224 && drawY >= 96 && drawY < 96 + 288);
+    
+    in_pacman = (drawX >= PACMAN_X && drawX < PACMAN_X + 13 && drawY >= PACMAN_Y && drawY < PACMAN_Y + 13);
+
+    in_blinky = (drawX >= BLINKY_X && drawX < BLINKY_X + 14 && drawY >= BLINKY_Y && drawY < BLINKY_Y + 14);
+    in_pinky = (drawX >= PINKY_X && drawX < PINKY_X + 14 && drawY >= PINKY_Y && drawY < PINKY_Y + 14);
+    in_inky = (drawX >= INKY_X && drawX < INKY_X + 14 && drawY >= INKY_Y && drawY < INKY_Y + 14);
+    in_clyde = (drawX >= CLYDE_X && drawX < CLYDE_X + 14 && drawY >= CLYDE_Y && drawY < CLYDE_Y + 14);
+
+    if (in_bounds) begin
+        // Render the full 28x36 tilemap (rows 0 to 35)
+        cur_glyph_X = localX >> 3;
+        cur_glyph_Y = localY >> 3; // Use rows 0 to 35 directly
+        cur_pixel_X = 7 - (localX & 3'b111);
+        cur_pixel_Y = localY & 3'b111;
+    end else begin
+        cur_glyph_X = 0;
+        cur_glyph_Y = 0;
+        cur_pixel_X = 0;
+        cur_pixel_Y = 0;
+    end
+    
+    tilemap_idx = (cur_glyph_Y * 28) + cur_glyph_X;
+    rom_addr = {tile_code, cur_pixel_Y};
+    pixel_data = rom_data[cur_pixel_X]; 
+
+    // Ghost pixel (using ROM)
+    if (in_blinky) begin
+        ghost_sprite_addr = ((drawY - BLINKY_Y) * 14) + (drawX - BLINKY_X);
+    end else if (in_pinky) begin
+        ghost_sprite_addr = ((drawY - PINKY_Y) * 14) + (drawX - PINKY_X);
+    end else if (in_inky) begin
+        ghost_sprite_addr = ((drawY - INKY_Y) * 14) + (drawX - INKY_X);
+    end else if (in_clyde) begin
+        ghost_sprite_addr = ((drawY - CLYDE_Y) * 14) + (drawX - CLYDE_X);
+    end else begin
+        ghost_sprite_addr = 0;
+    end
+    
+    // Pacman pixel (using ROM)
+    if (in_pacman) begin
+        pacman_sprite_addr = ((drawY - PACMAN_Y) * 13) + (drawX - PACMAN_X);
+    end 
+    else begin
+        pacman_sprite_addr = 0;
+    end
+
+    if ((in_blinky | in_pinky | in_inky | in_clyde) && ghost_pixel != 2'b00) begin
+      if (in_blinky) begin
+        case (ghost_pixel)
+          2'b11: begin
+            if(BLINKY_SCARED) begin R = 4'hF; G = 4'h0; B = 4'h0; end
+            else begin R = 4'h0; G = 4'h0; B = 4'h0; end
+          end
+          2'b01: begin
+            if(BLINKY_SCARED) begin R = 4'hF; G = 4'hF; B = 4'hF; end
+            else begin R = 4'hF; G = 4'h0; B = 4'h0; end
+          end
+          2'b10: begin R = 4'hF; G = 4'hF; B = 4'hF; end
+          default: begin R = 4'h0; G = 4'h0; B = 4'h0; end
+        endcase
+      end
+      else if (in_inky) begin
+        case (ghost_pixel)
+          2'b11: begin
+            if(INKY_SCARED) begin R = 4'hF; G = 4'h0; B = 4'h0; end
+            else begin R = 4'h0; G = 4'h0; B = 4'h0; end
+          end
+          2'b01: begin
+            if(INKY_SCARED) begin R = 4'hF; G = 4'hF; B = 4'hF; end
+            else begin R = 4'h0; G = 4'hF; B = 4'hF; end
+          end
+          2'b10: begin R = 4'hF; G = 4'hF; B = 4'hF; end
+          default: begin R = 4'h0; G = 4'h0; B = 4'h0; end
+        endcase
+      end
+      else if (in_pinky) begin
+        case (ghost_pixel)
+          2'b11: begin
+            if(PINKY_SCARED) begin R = 4'hF; G = 4'h0; B = 4'h0; end
+            else begin R = 4'h0; G = 4'h0; B = 4'h0; end
+          end
+          2'b01: begin
+            if(PINKY_SCARED) begin R = 4'hF; G = 4'hF; B = 4'hF; end
+            else begin R = 4'hF; G = 4'hA; B = 4'hF; end
+          end
+          2'b10: begin R = 4'hF; G = 4'hF; B = 4'hF; end
+          default: begin R = 4'h0; G = 4'h0; B = 4'h0; end
+        endcase
+      end
+      else if (in_clyde) begin
+        case (ghost_pixel)
+          2'b11: begin
+            if(CLYDE_SCARED) begin R = 4'hF; G = 4'h0; B = 4'h0; end
+            else begin R = 4'h0; G = 4'h0; B = 4'h0; end
+          end
+          2'b01: begin
+            if(CLYDE_SCARED) begin R = 4'hF; G = 4'hF; B = 4'hF; end
+            else begin R = 4'hF; G = 4'hA; B = 4'h4; end
+          end
+          2'b10: begin R = 4'hF; G = 4'hF; B = 4'hF; end
+          default: begin R = 4'h0; G = 4'h0; B = 4'h0; end
+        endcase
+      end
+    end
+    else if (in_pacman) begin
+      case(pacman_pixel)
+        1'b1: begin
+          R = 4'hF;
+          G = 4'hF;
+          B = 4'h0;
+        end
+        1'b0: begin
+          if(cur_glyph_X < 28 && cur_glyph_Y < 36) begin
+            case (tile_code)
+                8'h00: begin // Empty space (black background)
+                    R = pixel_data ? 4'h0 : 4'h0;
+                    G = pixel_data ? 4'h0 : 4'h0;
+                    B = pixel_data ? 4'h0 : 4'h0;
+                end
+                8'h01, 8'h02: begin // Pellet (yellow dot on black)
+                    R = pixel_data ? 4'hC : 4'h0;
+                    G = pixel_data ? 4'h9 : 4'h0;
+                    B = pixel_data ? 4'h7 : 4'h0;
+                end
+                8'h03, 8'h04, 8'h05, 8'h06, 8'h07, 8'h08, 8'h09, 8'h0A, 8'h0B, 8'h0C, 8'h0D,
+                8'h0E, 8'h0F, 8'h10, 8'h11, 8'h12, 8'h13, 8'h14, 8'h15, 8'h16, 8'h17, 8'h18,
+                8'h19, 8'h1A, 8'h1B, 8'h1C, 8'h1D, 8'h1E, 8'h1F, 8'h20, 8'h21, 8'h22: begin // Walls (blue)
+                    R = pixel_data ? 4'h0 : 4'h0;
+                    G = pixel_data ? 4'h0 : 4'h0;
+                    B = pixel_data ? 4'hF : 4'h0;
+                end
+                8'h27, 8'h28, 8'h29, 8'h2A, 8'h2B, 8'h2C, 8'h2D, 8'h2E, 8'h2F, 8'h30, 8'h31,
+                8'h32, 8'h33, 8'h34, 8'h35, 8'h36, 8'h37, 8'h38, 8'h39, 8'h3A, 8'h3B: begin // Text White
+                    R = pixel_data ? 4'hF : 4'h0;
+                    G = pixel_data ? 4'hF : 4'h0;
+                    B = pixel_data ? 4'hF : 4'h0;
+                end
+                8'h23, 8'h24, 8'h25, 8'h26: begin
+                  R = pixel_data ? 4'hF : 4'h0;
+                  G = pixel_data ? 4'hF : 4'h0;
+                  B = pixel_data ? 4'h8 : 4'h0;
+                end
+                default: begin // Unknown tiles (grey for debugging)
+                    R = pixel_data ? 4'h8 : 4'h0;
+                    G = pixel_data ? 4'h8 : 4'h0;
+                    B = pixel_data ? 4'h8 : 4'h0;
+                end
+            endcase
+          end
+          else begin
+            R = 4'b0000;
+            G = 4'b0000;
+            B = 4'b0000;
+          end
+        end
+        default: begin
+          R = 4'b0000;
+          G = 4'b0000;
+          B = 4'b0000;
+        end
+      endcase
+    end
+    else begin
+      if(cur_glyph_X < 28 && cur_glyph_Y < 36) begin
+        case (tile_code)
+            8'h00: begin // Empty space (black background)
+                R = pixel_data ? 4'h0 : 4'h0;
+                G = pixel_data ? 4'h0 : 4'h0;
+                B = pixel_data ? 4'h0 : 4'h0;
+            end
+            8'h01, 8'h02: begin // Pellet (yellow dot on black)
+                R = pixel_data ? 4'hC : 4'h0;
+                G = pixel_data ? 4'h9 : 4'h0;
+                B = pixel_data ? 4'h7 : 4'h0;
+            end
+            8'h03, 8'h04, 8'h05, 8'h06, 8'h07, 8'h08, 8'h09, 8'h0A, 8'h0B, 8'h0C, 8'h0D,
+            8'h0E, 8'h0F, 8'h10, 8'h11, 8'h12, 8'h13, 8'h14, 8'h15, 8'h16, 8'h17, 8'h18,
+            8'h19, 8'h1A, 8'h1B, 8'h1C, 8'h1D, 8'h1E, 8'h1F, 8'h20, 8'h21, 8'h22: begin // Walls (blue)
+                R = pixel_data ? 4'h0 : 4'h0;
+                G = pixel_data ? 4'h0 : 4'h0;
+                B = pixel_data ? 4'hF : 4'h0;
+            end
+            8'h27, 8'h28, 8'h29, 8'h2A, 8'h2B, 8'h2C, 8'h2D, 8'h2E, 8'h2F, 8'h30, 8'h31,
+            8'h32, 8'h33, 8'h34, 8'h35, 8'h36, 8'h37, 8'h38, 8'h39, 8'h3A, 8'h3B: begin // Text White
+                R = pixel_data ? 4'hF : 4'h0;
+                G = pixel_data ? 4'hF : 4'h0;
+                B = pixel_data ? 4'hF : 4'h0;
+            end
+            8'h23, 8'h24, 8'h25, 8'h26: begin
+              R = pixel_data ? 4'hF : 4'h0;
+              G = pixel_data ? 4'hF : 4'h0;
+              B = pixel_data ? 4'h8 : 4'h0;
+            end
+            default: begin // Unknown tiles (grey for debugging)
+                R = pixel_data ? 4'h8 : 4'h0;
+                G = pixel_data ? 4'h8 : 4'h0;
+                B = pixel_data ? 4'h8 : 4'h0;
+            end
+        endcase
+      end
+      else begin
+        R = 4'b0000;
+        G = 4'b0000;
+        B = 4'b0000;
+      end
+    end
+end
+
+// Instantiate the Tilemap module
+Tilemap tilemap_inst (
+    // PORT A STRICTLY READS
+    .clk(S_AXI_ACLK),
+    .addr_a(tilemap_idx),
+    .data_a(tile_code),
+    
+    // PORT B READS/WRITES
+    .addr_b(tilemap_addra[9:0]),
+    .data_in_b(S_AXI_WDATA[7:0]),
+    .we_b(tilemap_wen[0]),
+    .data_b(reg_data_out)
+);
+
+// Font ROM Module
+font_rom fonts(
+    .addr(rom_addr),     
+    .data(rom_data)  
+);
+   
+ghost_sprite_rom ghosts(
+  .addr(ghost_sprite_addr),
+  .data(ghost_pixel)
+);
+
+pacman_sprite_rom pacman(
+    .dir(PACMAN_DIR),
+    .addr(pacman_sprite_addr),
+    .data(pacman_pixel)
+);
+
+endmodule
+

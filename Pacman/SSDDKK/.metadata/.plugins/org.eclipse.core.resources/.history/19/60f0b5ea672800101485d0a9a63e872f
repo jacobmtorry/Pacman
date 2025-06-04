@@ -1,0 +1,134 @@
+#include "ghosts.h"
+#include "tilemap.h"
+#include <stdio.h>          /* xil_printf */
+
+extern uint8_t read_tile(uint16_t px, uint16_t py);
+
+/* ─── geometry constants ─────────────────────────────────────────────── */
+#define HALF_GHOST  (GHOST_SIZE / 2)          /* 7  */
+#define HALF_TILE   (TILE_WIDTH  / 2)         /* 4  */
+
+/* ─── helpers ─────────────────────────────────────────────────────────── */
+static inline int on_tile_center(uint16_t cx, uint16_t cy)
+{
+    return (((cx - MAZE_X_OFFSET - HALF_TILE) % TILE_WIDTH  == 0) &&
+            ((cy - MAZE_Y_OFFSET - HALF_TILE) % TILE_HEIGHT == 0));
+}
+static inline int walkable(uint8_t t) { return t <= 0x02; }
+
+static inline void tile_coord(uint16_t cx, uint16_t cy,
+                              int8_t *tx, int8_t *ty)
+{
+    *tx = (cx - MAZE_X_OFFSET - HALF_TILE) / TILE_WIDTH;
+    *ty = (cy - MAZE_Y_OFFSET - HALF_TILE) / TILE_HEIGHT;
+}
+static inline void snap_to_grid(Ghost *g)
+{
+    int8_t tx, ty;
+    tile_coord(g->x + HALF_GHOST, g->y + HALF_GHOST, &tx, &ty);
+    g->x = MAZE_X_OFFSET + tx * TILE_WIDTH  + HALF_TILE - HALF_GHOST;
+    g->y = MAZE_Y_OFFSET + ty * TILE_HEIGHT + HALF_TILE - HALF_GHOST;
+}
+
+/* ─── low‑level move check ───────────────────────────────────────────── */
+int valid_ghost_move(int dir, uint16_t x, uint16_t y)
+{
+    uint16_t cx = x + HALF_GHOST;
+    uint16_t cy = y + HALF_GHOST;
+
+    int8_t tx, ty;
+    tile_coord(cx, cy, &tx, &ty);
+
+    switch (dir) {
+        case DIR_LEFT:   --tx; break;
+        case DIR_RIGHT:  ++tx; break;
+        case DIR_UP:     --ty; break;
+        case DIR_DOWN:   ++ty; break;
+        default: return 0;
+    }
+    uint16_t test_cx = MAZE_X_OFFSET + tx * TILE_WIDTH  + HALF_TILE;
+    uint16_t test_cy = MAZE_Y_OFFSET + ty * TILE_HEIGHT + HALF_TILE;
+    return walkable(read_tile(test_cx, test_cy));
+}
+
+/* ─── probing utility ────────────────────────────────────────────────── */
+typedef struct {
+    uint8_t L, R, U, D;
+} Probe;
+
+static inline Probe probe_moves(uint16_t x, uint16_t y)
+{
+    Probe p;
+    p.L = valid_ghost_move(DIR_LEFT , x, y);
+    p.R = valid_ghost_move(DIR_RIGHT, x, y);
+    p.U = valid_ghost_move(DIR_UP   , x, y);
+    p.D = valid_ghost_move(DIR_DOWN , x, y);
+    return p;
+}
+
+/* ─── initialise ─────────────────────────────────────────────────────── */
+void init_ghost(Ghost *g, uint8_t tile_x, uint8_t tile_y)
+{
+    g->x = MAZE_X_OFFSET + tile_x * TILE_WIDTH  + HALF_TILE - HALF_GHOST;
+    g->y = MAZE_Y_OFFSET + tile_y * TILE_HEIGHT + HALF_TILE - HALF_GHOST;
+    g->direction = DIR_NONE;
+}
+
+/* ─── direction choice ──────────────────────────────────────────────── */
+int choose_direction(Ghost *g, const Probe *p)
+{
+    int dx = g->target_x - g->x;
+    int dy = g->target_y - g->y;
+
+    /* X‑priority then Y — only take directions that probe says are ok */
+    if (abs(dx) > abs(dy)) {
+        if (dx > 0 && p->R) return DIR_RIGHT;
+        if (dx < 0 && p->L) return DIR_LEFT;
+    }
+    if (dy > 0 && p->D) return DIR_DOWN;
+    if (dy < 0 && p->U) return DIR_UP;
+
+    /* fall‑backs to keep moving */
+    if (p->L) return DIR_LEFT;
+    if (p->R) return DIR_RIGHT;
+    if (p->U) return DIR_UP;
+    if (p->D) return DIR_DOWN;
+
+    return DIR_NONE;
+}
+
+/* ─── one‑pixel step ─────────────────────────────────────────────────── */
+static inline void step(Ghost *g, int speed)
+{
+    switch (g->direction) {
+        case DIR_LEFT:  g->x -= speed; break;
+        case DIR_RIGHT: g->x += speed; break;
+        case DIR_UP:    g->y -= speed; break;
+        case DIR_DOWN:  g->y += speed; break;
+        default: break;
+    }
+}
+
+/* ─── main update ────────────────────────────────────────────────────── */
+void update_ghost(Ghost *g, uint16_t pac_x, uint16_t pac_y)
+{
+    uint16_t cx = g->x + HALF_GHOST;
+    uint16_t cy = g->y + HALF_GHOST;
+
+    if (on_tile_center(cx, cy)) {
+        snap_to_grid(g);              /* eliminate drift              */
+
+        Probe p = probe_moves(g->x, g->y);
+
+        /* debug dump – comment out when happy                         */
+        xil_printf("[Probe] L:%d R:%d U:%d D:%d @ (%d,%d)\r\n",
+                   p.L, p.R, p.U, p.D, g->x, g->y);
+
+        g->target_x  = pac_x;
+        g->target_y  = pac_y;
+        g->direction = choose_direction(g, &p);
+    }
+
+    if (valid_ghost_move(g->direction, g->x, g->y))
+        step(g, 1);   /* advance one pixel                              */
+}

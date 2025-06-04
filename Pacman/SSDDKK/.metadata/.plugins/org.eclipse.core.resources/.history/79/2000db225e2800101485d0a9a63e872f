@@ -1,0 +1,94 @@
+#include "ghosts.h"
+#include "tilemap.h"
+
+extern uint8_t read_tile(uint16_t pixel_x, uint16_t pixel_y);
+
+#define HALF_GHOST  (GHOST_SIZE / 2)
+#define HALF_TILE   3
+
+static inline int on_tile_center(uint16_t cx, uint16_t cy)
+{
+    return (((cx - MAZE_X_OFFSET - HALF_TILE) % TILE_WIDTH  == 0) &&
+            ((cy - MAZE_Y_OFFSET - HALF_TILE) % TILE_HEIGHT == 0));
+}
+
+static inline int walkable(uint8_t tile)
+{   return (tile <= 0x02); }
+
+
+
+void init_ghost(Ghost *g, uint8_t tile_x, uint8_t tile_y)
+{
+    g->x = MAZE_X_OFFSET + tile_x * TILE_WIDTH  + HALF_TILE  - HALF_GHOST;
+    g->y = MAZE_Y_OFFSET + tile_y * TILE_HEIGHT + HALF_TILE  - HALF_GHOST;
+
+    g->direction = DIR_NONE;
+    g->target_x  = g->x;
+    g->target_y  = g->y;
+}
+
+int valid_ghost_move(int dir, uint16_t x, uint16_t y)
+{
+    uint16_t cx = x + HALF_GHOST;
+    uint16_t cy = y + HALF_GHOST;
+
+    switch (dir)
+    {
+        case DIR_LEFT:  cx -= TILE_WIDTH;  break;
+        case DIR_RIGHT: cx += TILE_WIDTH;  break;
+        case DIR_UP:    cy -= TILE_HEIGHT; break;
+        case DIR_DOWN:  cy += TILE_HEIGHT; break;
+        default: return 0;
+    }
+    return walkable( read_tile(cx, cy) );
+}
+
+int choose_direction(Ghost *g)
+{
+    int dx = g->target_x - g->x;
+    int dy = g->target_y - g->y;
+
+    if (abs(dx) > abs(dy))
+    {
+        if (dx > 0 && valid_ghost_move(DIR_RIGHT, g->x, g->y)) return DIR_RIGHT;
+        if (dx < 0 && valid_ghost_move(DIR_LEFT , g->x, g->y)) return DIR_LEFT;
+    }
+    if (dy > 0 && valid_ghost_move(DIR_DOWN , g->x, g->y)) return DIR_DOWN;
+    if (dy < 0 && valid_ghost_move(DIR_UP   , g->x, g->y)) return DIR_UP;
+
+
+    if (valid_ghost_move(DIR_LEFT , g->x, g->y)) return DIR_LEFT;
+    if (valid_ghost_move(DIR_RIGHT, g->x, g->y)) return DIR_RIGHT;
+    if (valid_ghost_move(DIR_UP   , g->x, g->y)) return DIR_UP;
+    if (valid_ghost_move(DIR_DOWN , g->x, g->y)) return DIR_DOWN;
+
+    return DIR_NONE;
+}
+
+void move_ghost(Ghost *g, int speed)
+{
+    switch (g->direction)
+    {
+        case DIR_LEFT:  g->x -= speed; break;
+        case DIR_RIGHT: g->x += speed; break;
+        case DIR_UP:    g->y -= speed; break;
+        case DIR_DOWN:  g->y += speed; break;
+        default: break;
+    }
+}
+
+void update_ghost(Ghost *g, uint16_t pac_x, uint16_t pac_y)
+{
+    uint16_t cx = g->x + HALF_GHOST;
+    uint16_t cy = g->y + HALF_GHOST;
+
+    if (g->direction == DIR_NONE || on_tile_center(cx, cy))
+    {
+        g->target_x  = pac_x;
+        g->target_y  = pac_y;
+        g->direction = choose_direction(g);
+    }
+
+    if (valid_ghost_move(g->direction, g->x, g->y))
+        move_ghost(g, 1);
+}
